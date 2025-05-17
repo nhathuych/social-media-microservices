@@ -28,7 +28,15 @@ brew services start redis
 
 ## Run the project
 
-cd identity-service
+Start the API Gateway:
 ```bash
+cd api-gateway
 npm run dev
 ```
+
+Start Other Services (e.g., identity-service):
+```bash
+cd identity-service
+npm run dev
+```
+> Repeat the steps above for any other services (post-service, search-service, etc.)
