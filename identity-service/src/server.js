@@ -9,7 +9,7 @@ const { Redis } = require('ioredis')
 const { rateLimit } = require('express-rate-limit')
 const { RedisStore } = require('rate-limit-redis')
 const errorHandler = require('./middleware/errorHandler')
-const routes = require('./routes/identity.service')
+const routes = require('./routes/identity.routes')
 
 const app = express()
 const PORT = process.env.PORT || 3002
@@ -48,6 +48,7 @@ app.use(helmet())
 app.use(express.json())
 app.use(errorHandler)
 app.use((req, res, next) => {
+  console.log()
   logger.info(`[${req.method}] "${req.url}"`)
   logger.info('Body:', req.body)
   next()
