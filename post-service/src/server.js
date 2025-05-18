@@ -44,7 +44,14 @@ app.use((req, res, next) => {
 })
 
 app.use('/api/v1/posts/create', sensitiveEndpointsLimiter)
-app.use('/api/v1/posts', routes)
+app.use(
+  '/api/v1/posts',
+  (req, res, next) => {
+    req.redisClient = redisClient
+    next()
+  },
+  routes
+)
 
 // Unhandled promise rejection
 process.on('unhandledRejection', (reason, promise) => {
