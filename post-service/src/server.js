@@ -59,5 +59,5 @@ process.on('unhandledRejection', (reason, promise) => {
 })
 
 app.listen(PORT, () => {
-  logger.info(`Identity service is running on port ${PORT}`)
+  logger.info(`Post service is running on port ${PORT}`)
 })
