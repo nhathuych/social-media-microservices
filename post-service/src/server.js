@@ -9,6 +9,7 @@ const routes = require('./routes/post.routes')
 const { Redis } = require('ioredis')
 const { rateLimit } = require('express-rate-limit')
 const { RedisStore } = require('rate-limit-redis')
+const { connectToRabbitMQ } = require('./utils/rabbitmq')
 
 const app = express()
 const PORT = process.env.PORT || 3003
@@ -58,6 +59,11 @@ process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at', promise, 'reason:', reason)
 })
 
-app.listen(PORT, () => {
-  logger.info(`Post service is running on port ${PORT}`)
+connectToRabbitMQ().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`Post service running on port ${PORT}`)
+  })
+}).catch((error) => {
+  logger.error('Failed to connect to RabbitMQ', error)
+  process.exit(1)
 })

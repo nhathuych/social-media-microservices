@@ -9,6 +9,8 @@ const logger = require('./utils/logger')
 const { Redis } = require('ioredis')
 const { rateLimit } = require('express-rate-limit')
 const { RedisStore } = require('rate-limit-redis')
+const { connectToRabbitMQ, consumeEvent } = require('./utils/rabbitmq')
+const { handlePostDeleted } = require('./rabbitmq-event-handlers/media.event.handlers')
 
 const app = express()
 const PORT = process.env.PORT || 3004
@@ -50,6 +52,19 @@ process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection at', promise, 'reason:', reason)
 })
 
-app.listen(PORT, () => {
-  logger.info(`Identity service is running on port ${PORT}`)
-})
+async function startServer() {
+  try {
+    await connectToRabbitMQ()
+    // consume the Post Deleted event / subscribe to the Post Deleted event
+    await consumeEvent('post.deleted', handlePostDeleted)
+
+    app.listen(PORT, () => {
+      logger.info(`Media service is running on port ${PORT}`)
+    })
+  } catch (error) {
+    logger.error('Failed to connect to RabbitMQ', error)
+    process.exit(1)
+  }
+}
+
+startServer()

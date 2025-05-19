@@ -1,24 +1,21 @@
 # Social Media Microservices
 
-## Project Setup
+## 📦 Project Setup
 
-**Install dependencies:**
+### Install dependencies:
 ```bash
 npm install
 ```
 
-**Environment Variables:**
+### Environment Variables:
 ```bash
 cp .env.example .env
 ```
 
-Install Redis (macOS with Homebrew):
+### Install & Start Redis (macOS with Homebrew):
 ```bash
 brew install redis
-```
 
-Start Redis:
-```bash
 # Option 1: Start manually
 redis-server
 
@@ -26,15 +23,31 @@ redis-server
 brew services start redis
 ```
 
-## Run the project
+### Install & Start RabbitMQ (macOS with Homebrew):
+```bash
+brew install rabbitmq
 
-Start the API Gateway:
+brew services start rabbitmq
+
+# Enable Management UI (optional)
+rabbitmq-plugins enable rabbitmq_management
+```
+
+RabbitMQ's web UI is usually available at: http://localhost:15672
+```bash
+Username: guest
+Password: guest
+```
+
+## 🚀 Run the project
+
+### Start the API Gateway:
 ```bash
 cd api-gateway
 npm run dev
 ```
 
-Start Other Services (e.g., identity-service):
+### Start Other Services (e.g., identity-service):
 ```bash
 cd identity-service
 npm run dev

@@ -1,6 +1,8 @@
 const logger = require('../utils/logger')
 const Post = require('../models/post')
+const mongoose = require('mongoose')
 const { validateCreatePost } = require('../utils/validation')
+const { publishEvent } = require('../utils/rabbitmq')
 
 async function invalidatePostsCache(req, postId) {
   const cachedKey = `post:${postId?.toString()}`
@@ -97,12 +99,26 @@ const getPosts = async (req, res) => {
 const deleteById = async (req, res) => {
   logger.info('Delete post endpoint hit...')
 
+  const session = await mongoose.startSession()
+  session.startTransaction()
   try {
-    const { id } = req.params
-    await Post.deleteOne({ _id: id, user: req.user.userId })
-    await invalidatePostsCache(req, id)
+    const post = await Post.findOneAndDelete({ _id: req.params.id, user: req.user.userId })
+
+    publishEvent('post.deleted', {
+      postId: post._id.toString(),
+      userId: post.user.toString(),
+      mediaIds: post.mediaIds,
+    })
+    await invalidatePostsCache(req, post._id)
+
+    await session.commitTransaction()
+    session.endSession()
+
     res.json({ success: true, message: 'Deleted successfully.' })
   } catch (error) {
+    await session.abortTransaction()
+    session.endSession()
+
     logger.error('Error deleting posts', error)
     res.status(500).json({ success: false, message: 'Error deleting posts.' })
   }
