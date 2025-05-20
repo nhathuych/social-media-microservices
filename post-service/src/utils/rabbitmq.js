@@ -56,6 +56,8 @@ const consumeEvent = async (routingKey, callback) => {
     if (message) {
       const content = JSON.parse(message.content.toString())  // Parse the message content from buffer to JSON
       callback(content)     // Call the provided callback with the parsed content
+
+      // Tell RabbitMQ the message was handled successfully — it will now be removed from the queue.
       channel.ack(message)  // Acknowledge that the message has been processed
     }
   })
