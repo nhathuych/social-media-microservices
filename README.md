@@ -1,6 +1,6 @@
 # Social Media Microservices
 
-## 📦 Project Setup
+## 📦 Project Setup (for manual run)
 
 ### Install dependencies:
 ```bash
@@ -40,6 +40,20 @@ Password: guest
 ```
 
 ## 🚀 Run the project
+
+### 🐳 Option 1: Run with Docker:
+Build and start all services using Docker Compose:
+```bash
+docker compose build
+docker compose up
+```
+
+After everything is up, you can start making requests to the API Gateway at:
+```bash
+http://localhost:3001
+```
+
+### 🛠 Option 2: Run manually (development)
 
 ### Start the API Gateway:
 ```bash

@@ -1,0 +1,14 @@
+docker-compose.yml
+**/node_modules/
+**/logs/
+**/.vscode
+
+.git
+.gitignore
+.idea
+
+.DS_Store
+Thumbs.db
+dump.rdb
+
+README.md

@@ -1,0 +1,114 @@
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3001:3001"
+    env_file: ./api-gateway/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - IDENTITY_SERVICE_URL=http://identity-service:3002
+      - POST_SERVICE_URL=http://post-service:3003
+      - MEDIA_SERVICE_URL=http://media-service:3004
+      - SEARCH_SERVICE_URL=http://search-service:3005
+      - REDIS_URL=redis://redis:6379/1
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+
+  identity-service:
+    build: ./identity-service
+    env_file: ./identity-service/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379/2
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - MONGODB_URI=mongodb://mongodb:27017/identity-service-db-development?authSource=admin
+
+  post-service:
+    build: ./post-service
+    env_file: ./post-service/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379/3
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - MONGODB_URI=mongodb://mongodb:27017/post-service-db-development?authSource=admin
+
+  media-service:
+    build: ./media-service
+    env_file: ./media-service/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379/4
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - MONGODB_URI=mongodb://mongodb:27017/media-service-db-development?authSource=admin
+
+  search-service:
+    build: ./search-service
+    env_file: ./search-service/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379/5
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - MONGODB_URI=mongodb://mongodb:27017/search-service-db-development?authSource=admin
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mongodb_data:
